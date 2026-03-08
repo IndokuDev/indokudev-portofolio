@@ -66,9 +66,7 @@ const Navbar = () => {
                     activeSection === link.href ? "w-full" : "w-0"
                   }`}
                 />
-              </a>
-                {link.label}
-              </a>
+            ))}
             ))}
             <ThemeToggle />
             <Button
