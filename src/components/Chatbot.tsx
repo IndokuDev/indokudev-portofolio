@@ -5,7 +5,8 @@ import ReactMarkdown from "react-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+const GEMINI_API_KEY = "AIzaSyDJR0o0OGbCOqhJCOJjJGBaff6ypxADaNA";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
