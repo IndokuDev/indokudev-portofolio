@@ -5,7 +5,8 @@ import ReactMarkdown from "react-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,13 +32,20 @@ const Chatbot = () => {
     let assistantSoFar = "";
 
     try {
-      const resp = await fetch(CHAT_URL, {
+      const systemMessage = "You are IndokuBot, a friendly AI assistant on IndokuDev's portfolio website. You help visitors learn about Ahmad Raghib Zahron (IndokuDev) - a young developer from Bekasi, Indonesia who creates Minecraft addons, web apps, and content. Be helpful, friendly, and concise.";
+
+      const geminiContents = newMessages.map((msg) => ({
+        role: msg.role === "assistant" ? "model" : "user",
+        parts: [{ text: msg.content }],
+      }));
+
+      const resp = await fetch(GEMINI_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ messages: newMessages }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemMessage }] },
+          contents: geminiContents,
+        }),
       });
 
       if (!resp.ok || !resp.body) throw new Error("Stream failed");
@@ -61,7 +69,7 @@ const Chatbot = () => {
           if (jsonStr === "[DONE]") break;
           try {
             const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
+            const content = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
             if (content) {
               assistantSoFar += content;
               setMessages((prev) => {
