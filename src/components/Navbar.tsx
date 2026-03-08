@@ -54,8 +54,19 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+                className={`relative font-medium transition-colors ${
+                  activeSection === link.href
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
+                {link.label}
+                <span
+                  className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
+                    activeSection === link.href ? "w-full" : "w-0"
+                  }`}
+                />
+              </a>
                 {link.label}
               </a>
             ))}
